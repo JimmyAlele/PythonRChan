@@ -1,9 +1,44 @@
 import pandas as pd
 import sys
+import tkinter as tk
+from tkinter import filedialog
+import time
+
+print("Select database files to analyse.")
+time.sleep(5)
+
+# create tkinter root window (it won't be shown)
+root = tk.Tk()
+root.withdraw()
+
+# show file selection dialog for multiple files
+selected_files = filedialog.askopenfilenames(title="Select DB files", filetypes=[("All Files", "*.xlsx")])
+
+# check if user cancelled
+if not selected_files:
+    print("File selection cancelled.")
+    sys.exit()
+else:
+    print(str(len(selected_files)) + " DB files selected.")
+
+print("Select the Excel filters worksheet")
+time.sleep(5)
+
+# create tkinter root window (it won't be shown)
+root = tk.Tk()
+root.withdraw()
+
+# show file selection dialog for multiple files
+filepath_filter = filedialog.askopenfilename(title="Select the Excel filters worksheet", filetypes=[("All Files", "*.xlsx")])
+
+# check if user cancelled
+if not filepath_filter:
+    print("File selection cancelled.")
+    sys.exit()
+else:
+    print("Excel filters worksheet selected.")
 
 filepath_db = "C:/Users/Bonbon/Documents/UP/Raymond Chan/New folder/DB_To_Jimmy/DB_To_Jimmy/v8.26_DB1_240128_v6_FF.xlsx"
-
-filepath_filter = "C:/Users/Bonbon/Documents/UP/Raymond Chan/New folder/filter_table.xlsx"
 
 # import data
 df = pd.read_excel(filepath_db)
@@ -98,8 +133,8 @@ for element in time_slots:
                     df_filtered_2[df_filtered_2.columns[filter_column_index]].notna())]
 
                 # Select the top 5 returns of "Column AZ, N+2 C vs. Close"
-                df_tf = df_tf.sort_values(by='N+2 C vs. Close', ascending=False)
-                df_combined = pd.concat([df_tf.head(), df_combined], ignore_index=True)
+                df_tf_sorted = df_tf.sort_values(by='N+2 C vs. Close', ascending=False)
+                df_combined = pd.concat([df_tf_sorted.head(), df_combined], ignore_index=True)
 
             elif "<" in filter_value_raw:
                 df_filtered_2[df_filtered_2.columns[filter_column_index]] = pd.to_numeric(
@@ -108,8 +143,8 @@ for element in time_slots:
                     df_filtered_2[df_filtered_2.columns[filter_column_index]].notna())]
 
                 # Select the top 5 returns of "Column AZ, N+2 C vs. Close"
-                df_tf = df_tf.sort_values(by='N+2 C vs. Close', ascending=False)
-                df_combined = pd.concat([df_tf.head(), df_combined], ignore_index=True)
+                df_tf_sorted = df_tf.sort_values(by='N+2 C vs. Close', ascending=False)
+                df_combined = pd.concat([df_tf_sorted.head(), df_combined], ignore_index=True)
 
             elif "=" in filter_value_raw:
                 df_filtered_2[df_filtered_2.columns[filter_column_index]] = pd.to_numeric(
@@ -118,8 +153,8 @@ for element in time_slots:
                     df_filtered_2[df_filtered_2.columns[filter_column_index]].notna())]
 
                 # Select the top 5 returns of "Column AZ, N+2 C vs. Close"
-                df_tf = df_tf.sort_values(by='N+2 C vs. Close', ascending=False)
-                df_combined = pd.concat([df_tf.head(), df_combined], ignore_index=True)
+                df_tf_sorted = df_tf.sort_values(by='N+2 C vs. Close', ascending=False)
+                df_combined = pd.concat([df_tf_sorted.head(), df_combined], ignore_index=True)
 
             else:
                 print("Comparison operator missing from filter table. Process stopped 2.")
@@ -132,14 +167,14 @@ if len(table_3) > 0:
     for i in range(0, len(table_3)):
         # excel returns 32.0 etc
         # excel indexing starts from 1. adjustment
-        filter_column_index = int(table_3.at[i, 'Table_3_column_index']) - 1
-        filter_comparison = table_3.at[i, 'Table_3_comparison']
-        filter_value_raw = table_3.at[i, 'Table_3_values']
+        filter_column_index = int(table_3.iloc[i, 1]) - 1
+        filter_comparison = table_3.iloc[i, 2]
+        filter_value_raw = table_3.iloc[i, 3]
 
         if is_numeric(filter_value_raw):
             filter_value = filter_value_raw
         elif filter_value_raw[-1] == "%":
-            filter_value = float(filter_value_raw[:-1]) / 100
+            filter_value = float(filter_value_raw[:-1])
         else:
             print("Check filter values in table 3. Are they all numeric?")
             sys.exit()
@@ -159,5 +194,7 @@ if len(table_3) > 0:
         else:
             print("Table 3 allows for >= and <= comparisons only.")
             sys.exit()
+
+# path to save
 
 
